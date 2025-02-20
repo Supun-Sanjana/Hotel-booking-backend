@@ -1,13 +1,15 @@
-import bodyParser from "body-parser";
+
 import express from "express";
+import bodyParser from "body-parser";
 import userRouter  from "./routes/usersRoutes.js";
 import mongoose from "mongoose";
 import galleryItemRouter from "./routes/galleryItemRoute.js";
 import jwt from "jsonwebtoken";
+import categoryRouter from "./routes/categoryRoute.js";
+
 import dotenv from "dotenv";
-
-
 dotenv.config();
+
 
 
 
@@ -49,10 +51,12 @@ mongoose.connect(connectionString).then(
     }
 )
 
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 
 app.use("/api/users",userRouter);
 app.use("/api/gallery",galleryItemRouter);
+app.use("/api/categories",categoryRouter);
 
 
 app.listen(5000,(req,res)=>

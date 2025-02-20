@@ -52,38 +52,53 @@ export function deleteUsers(req, res)  {
 export function loginUsers(req, res) {
     const credentials = req.body;
 
-    // Find the user by email
-    User.findOne({ email: credentials.email }).then(
-        (user) => {
-            if (user == null) {
-                res.status(401).json({ message: "Invalid credentials" });
-            } else {
-                // Compare the provided password with the stored hash
-                const isPasswordCorrect = bcrypt.compareSync(credentials.password, user.password);
-
-                if (!isPasswordCorrect) {
-                    res.status(401).json({ message: "Invalid credentials" });
-                } else {
-                    const payload = {
-                        email: user.email,
-                        firstName: user.firstName,
-                        user: user.type,
-                    };
-
-                    // Generate a JWT token
-                    const token = jwt.sign(payload,process.env.JWT_SECRET , { expiresIn: "72h" });
-
-                    res.json({
-                        message: "Success",
-                        user: user,
-                        token: token,
-                    });
-                }
+    User.findOne({ email: credentials.email })
+        .then((user) => {
+            if (!user) {
+                return res.status(401).json({ message: "Invalid credentials" });
             }
-        }
-    ).catch(
-        (err) => {
-            res.status(500).json({ message: "Server error", error: err });
-        }
-    );
-};
+
+            console.log("Stored hashed password:", user.password);
+            console.log("Entered password:", credentials.password);
+
+            // Ensure user.password is not undefined/null before comparing
+            if (!user.password) {
+                return res.status(500).json({ message: "Stored password is missing from database" });
+            }
+
+            const isPasswordCorrect = bcrypt.compareSync(credentials.password, user.password);
+
+            if (!isPasswordCorrect) {
+                return res.status(401).json({ message: "Invalid credentials" });
+            }
+
+            // Generate a JWT token
+            const payload = {
+                email: user.email,
+                firstName: user.firstName,
+                user: user.type,
+            };
+
+            
+            
+            
+
+            // Ensure JWT_SECRET is defined before signing the token
+            if (!process.env.JWT_SECRET) {
+                console.error("Error: JWT_SECRET is not defined in .env");
+                return res.status(500).json({ message: "Server error: JWT secret is missing" });
+            }
+
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "72h" });
+
+            res.json({
+                message: "Success",
+                user: user,
+                token: token,
+            });
+        })
+        .catch((err) => {
+            console.error("Login error:", err); // Log actual error
+            res.status(500).json({ message: "Server error", error: err.message || err });
+        });
+}
