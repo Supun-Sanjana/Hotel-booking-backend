@@ -83,13 +83,9 @@ export function loginUsers(req, res) {
             
             
 
-            // Ensure JWT_SECRET is defined before signing the token
-            if (!process.env.JWT_SECRET) {
-                console.error("Error: JWT_SECRET is not defined in .env");
-                return res.status(500).json({ message: "Server error: JWT secret is missing" });
-            }
+           
 
-            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "72h" });
+            const token = jwt.sign(payload, "secretKey", { expiresIn: "72h" });
 
             res.json({
                 message: "Success",
