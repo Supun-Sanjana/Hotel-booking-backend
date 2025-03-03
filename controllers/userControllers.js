@@ -49,6 +49,8 @@ export function deleteUsers(req, res)  {
 };
 
 
+
+
 export function loginUsers(req, res) {
     const credentials = req.body;
 
@@ -80,12 +82,8 @@ export function loginUsers(req, res) {
             };
 
             
-            
-            
 
-           
-
-            const token = jwt.sign(payload, "secretKey", { expiresIn: "72h" });
+            const token = jwt.sign(payload, Process.env.JWT_SECRET, { expiresIn: "72h" });
 
             res.json({
                 message: "Success",

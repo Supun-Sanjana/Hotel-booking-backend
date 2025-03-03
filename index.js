@@ -17,7 +17,7 @@ dotenv.config(); // This line loads the .env file
 const app = express();
 app.use(bodyParser.json());
 
-const connectionString = "mongodb+srv://supun:123@cluster0.nhzn6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const connectionString = process.env.MONGO_URL
 console.log(connectionString);
 
 app.use((req,res,next)=>{
